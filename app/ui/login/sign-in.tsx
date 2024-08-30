@@ -8,8 +8,7 @@ import { SignInMethodDivider } from "@/app/ui/signin-divider";
 import { Input } from "@/app/ui/input";
 import { Toaster } from "@/app/ui/toaster";
 import { useToast } from "@/app/ui/use-toast";
-import { Button } from "@/app/ui/button"
-
+import { Button } from "@/app/ui/button";
 
 const LoginForm = () => {
   const [step, setStep] = useState<"signIn" | "linkSent">("signIn");
@@ -54,7 +53,7 @@ export function SignInWithGitHub() {
       className="flex-1"
       variant="outline"
       type="button"
-      onClick={() => void signIn("github", { redirectTo: "/dashboard"})}
+      onClick={() => void signIn("github", { redirectTo: "/dashboard" })}
     >
       <GitHubLogoIcon className="mr-2 size-4" /> GitHub
     </Button>

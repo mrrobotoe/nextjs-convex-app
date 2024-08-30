@@ -24,3 +24,45 @@ export const statuses = [
   { value: "duplicate", label: "Duplicate" },
   { value: "backlog", label: "Backlog" },
 ];
+
+export const prioritiesProperties: any = {
+  low: {
+    name: "low",
+    icon: "bar-graph-1.svg",
+  },
+  medium: {
+    name: "medium",
+    icon: "bar-graph-2.svg",
+  },
+  high: {
+    name: "high",
+    icon: "full-bar-graph.svg",
+  },
+};
+
+export const statusProperties: any = {
+  backlog: {
+    name: "backlog",
+    icon: "dotted-circle.svg",
+  },
+  todo: {
+    name: "todo",
+    icon: "circle.svg",
+  },
+  "in progress": {
+    name: "in progress",
+    icon: "half-circle-color.svg",
+  },
+  done: {
+    name: "done",
+    icon: "check-circle.svg",
+  },
+  cancelled: {
+    name: "cancelled",
+    icon: "close-circle.svg",
+  },
+  duplicate: {
+    name: "duplicate",
+    icon: "close-circle.svg",
+  },
+};

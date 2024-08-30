@@ -5,8 +5,8 @@ import { mutation, query } from "./_generated/server";
 import { auth } from "./auth";
 
 export const list = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { team: v.string() },
+  handler: async (ctx, { team }) => {
     const userId = await auth.getUserId(ctx);
 
     if (userId === null) {
@@ -23,14 +23,11 @@ export const list = query({
       throw new Error("User is not associated with a workspace");
     }
 
-    const todos = await ctx.db
+    return await ctx.db
       .query("todos")
-      .withIndex("by_workspaces", (q) =>
-        q.eq("workspacesId", user.workspacesId as Id<"workspaces">),
-      )
+      .withIndex("by_workspaces")
+      .filter((q) => q.eq(q.field("workspacesIdentifier"), team))
       .collect();
-
-    return todos;
   },
 });
 
@@ -53,10 +50,18 @@ export const create = mutation({
       ),
     ),
     assigneeId: v.optional(v.id("users")),
+    workspacesId: v.id("workspaces"),
   },
   handler: async (
     ctx,
-    { content, title, priority = "low", status = "backlog", assigneeId },
+    {
+      content,
+      title,
+      priority = "low",
+      status = "backlog",
+      assigneeId,
+      workspacesId,
+    },
   ) => {
     const userId = await auth.getUserId(ctx);
 
@@ -80,13 +85,15 @@ export const create = mutation({
     // get id to create identifier
     const id = (await ctx.db.query("todos").collect()).length + 1;
 
-    const workspaceName = await ctx.db.get(user.workspacesId);
+    const workspaceName = await ctx.db.get(
+      user.workspacesId as unknown as Id<"workspaces">,
+    );
 
     if (workspaceName === null) {
       throw new Error("Workspace not found");
     }
 
-    const todo = await ctx.db.insert("todos", {
+    return await ctx.db.insert("todos", {
       content,
       id,
       title,
@@ -96,10 +103,8 @@ export const create = mutation({
       updatedTime,
       userId: userId,
       assigneeId: assigneeId ? assigneeId : undefined,
-      workspacesId: user.workspacesId,
+      workspacesId: workspacesId,
     });
-
-    return todo;
   },
 });
 

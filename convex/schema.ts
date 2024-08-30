@@ -15,7 +15,9 @@ export default defineSchema({
     phone: v.optional(v.string()),
     phoneVerificationTime: v.optional(v.number()),
     isAnonymous: v.optional(v.boolean()),
-    workspacesId: v.optional(v.id("workspaces")),
+    workspacesId: v.optional(
+      v.union(v.array(v.id("workspaces")), v.id("workspaces")),
+    ),
   }).index("email", ["email"]),
   messages: defineTable({
     userId: v.id("users"),
@@ -37,6 +39,7 @@ export default defineSchema({
     ),
     workspacesId: v.id("workspaces"),
     identifier: v.optional(v.string()),
+    workspacesIdentifier: v.optional(v.string()),
     updatedTime: v.optional(v.number()),
     userId: v.id("users"),
     assigneeId: v.optional(v.id("users")),

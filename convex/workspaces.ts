@@ -1,7 +1,7 @@
 import { v } from "convex/values";
-
 import { mutation, query } from "./_generated/server";
 import { auth } from "./auth";
+import { Id } from "./_generated/dataModel";
 
 export const list = query({
   args: {},
@@ -20,11 +20,9 @@ export const list = query({
 
     const allWorkspaces = await ctx.db.query("workspaces").collect();
 
-    const workspaces = allWorkspaces.filter((workspace) =>
+    return allWorkspaces.filter((workspace) =>
       workspace.members?.includes(userId),
     );
-
-    return workspaces;
   },
 });
 
@@ -47,7 +45,9 @@ export const getTeamMembers = query({
       throw new Error("User is not in a workspace");
     }
 
-    const workspace = await ctx.db.get(user.workspacesId);
+    const workspace = await ctx.db.get(
+      user.workspacesId as unknown as Id<"workspaces">,
+    );
 
     if (workspace === null) {
       throw new Error("Workspace not found");
@@ -57,11 +57,9 @@ export const getTeamMembers = query({
       throw new Error("Workspace has no members");
     }
 
-    const members = await Promise.all(
+    return await Promise.all(
       workspace.members.map(async (memberId) => ctx.db.get(memberId)),
     );
-
-    return members;
   },
 });
 
@@ -85,11 +83,24 @@ export const create = mutation({
         name.split(" ")[1][0].toUpperCase();
     }
 
-    const workspace = await ctx.db.insert("workspaces", {
+    return await ctx.db.insert("workspaces", {
       name,
       identifier: identifier,
     });
+  },
+});
 
-    return workspace;
+export const update = mutation({
+  args: { workspacesId: v.id("workspaces"), userId: v.id("users") },
+  handler: async (ctx, { workspacesId, userId }) => {
+    if (userId === null || workspacesId === null) {
+      throw new Error("Please provide both user and the workspace info.");
+    }
+
+    const workspace = await ctx.db.get(workspacesId);
+
+    await ctx.db.patch(workspacesId, {
+      members: [...(<[]>workspace?.members), userId],
+    });
   },
 });
